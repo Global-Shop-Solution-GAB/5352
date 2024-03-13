@@ -1,0 +1,42 @@
+Program.Sub.ScreenSU.Start
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+	'49752 - "%/" PREFIX
+
+	V.Local.sSQL.Declare(String,"SELECT EMPLOYEE FROM EMPLOYEE_MSTR WHERE ALPHA_SORT='{0}'")
+
+	'Modify the SQL query by injecting the values that we extracted above
+	Function.Intrinsic.String.Build(V.Local.sSQL,V.Passed.ScanData,V.Local.sSQL)
+
+	'Open connection to the company code database 
+	F.ODBC.Connection!con.OpenCompanyConnection()
+	
+	'Execute query, retreieve results	
+	f.Data.DataTable.CreateFromSQL("dtSort","con",v.Local.sSQL)
+
+	f.Intrinsic.Control.If(v.DataTable.dtSort.RowCount,=,0)
+		' Exit if no sort code found.
+		V.Passed.ReturnErrorMessage.Set("Badge ID Not Found - please contact ID Department.")
+		Function.Intrinsic.Control.ExitSub
+	f.Intrinsic.Control.EndIf
+
+    ' Set return employee ID.
+	V.Passed.ReturnEmployeeID.Set(v.DataTable.dtSort(0).Employee!FieldValTrim)
+
+    ' Close datable connections and end program.
+	f.Data.DataTable.Close("dtSort")
+	F.ODBC.Connection!Con.Close
+	F.Intrinsic.Control.End
+
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$$}$3/11/2015 11:24:12 PM$}$False
+Program.Sub.Comments.End
+
